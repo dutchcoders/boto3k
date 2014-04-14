@@ -19,8 +19,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import StringIO
 import xml.sax
+
+import sys
+if sys.version_info[0] == 2:
+    import StringIO
+    StringIO = StringIO.StringIO
+
+elif sys.version_info[0] == 3:
+    import io
+    StringIO = io.StringIO
 
 class XmlHandler(xml.sax.ContentHandler):
 

@@ -20,10 +20,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 #
-import StringIO, os, re
+from __future__ import print_function
+
+import os, re
 import warnings
-import ConfigParser
 import boto
+
+import sys
+if sys.version_info[0] == 2:
+    import StringIO
+    from ConfigParser import SafeConfigParser
+    StringIO = StringIO.StringIO
+
+elif sys.version_info[0] == 3:
+    from configparser import SafeConfigParser
+    import io
+    StringIO = io.StringIO
+
 
 # If running in Google App Engine there is no "user" and
 # os.path.expanduser() will fail. Attempt to detect this case and use a
@@ -55,12 +68,12 @@ elif 'BOTO_PATH' in os.environ:
         BotoConfigLocations.append(expanduser(path))
 
 
-class Config(ConfigParser.SafeConfigParser):
+class Config(SafeConfigParser):
 
     def __init__(self, path=None, fp=None, do_load=True):
         # We don't use ``super`` here, because ``ConfigParser`` still uses
         # old-style classes.
-        ConfigParser.SafeConfigParser.__init__(self, {'working_dir' : '/mnt/pyami',
+        SafeConfigParser.__init__(self, {'working_dir' : '/mnt/pyami',
                                                       'debug' : '0'})
         if do_load:
             if path:
@@ -78,7 +91,7 @@ class Config(ConfigParser.SafeConfigParser):
 
     def load_credential_file(self, path):
         """Load a credential file as is setup like the Java utilities"""
-        c_data = StringIO.StringIO()
+        c_data = StringIO()
         c_data.write("[Credentials]\n")
         for line in open(path, "r").readlines():
             c_data.write(line.replace("AWSAccessKeyId", "aws_access_key_id").replace("AWSSecretKey", "aws_secret_access_key"))
@@ -101,7 +114,7 @@ class Config(ConfigParser.SafeConfigParser):
         Replace any previous value.  If the path doesn't exist, create it.
         Also add the option the the in-memory config.
         """
-        config = ConfigParser.SafeConfigParser()
+        config = SafeConfigParser()
         config.read(path)
         if not config.has_section(section):
             config.add_section(section)
@@ -145,21 +158,21 @@ class Config(ConfigParser.SafeConfigParser):
 
     def get(self, section, name, default=None):
         try:
-            val = ConfigParser.SafeConfigParser.get(self, section, name)
+            val = SafeConfigParser.get(self, section, name)
         except:
             val = default
         return val
 
     def getint(self, section, name, default=0):
         try:
-            val = ConfigParser.SafeConfigParser.getint(self, section, name)
+            val = SafeConfigParser.getint(self, section, name)
         except:
             val = int(default)
         return val
 
     def getfloat(self, section, name, default=0.0):
         try:
-            val = ConfigParser.SafeConfigParser.getfloat(self, section, name)
+            val = SafeConfigParser.getfloat(self, section, name)
         except:
             val = float(default)
         return val
@@ -182,13 +195,13 @@ class Config(ConfigParser.SafeConfigParser):
             self.set(section, name, 'false')
 
     def dump(self):
-        s = StringIO.StringIO()
+        s = StringIO()
         self.write(s)
-        print s.getvalue()
+        print (s.getvalue())
 
     def dump_safe(self, fp=None):
         if not fp:
-            fp = StringIO.StringIO()
+            fp = StringIO()
         for section in self.sections():
             fp.write('[%s]\n' % section)
             for option in self.options(section):

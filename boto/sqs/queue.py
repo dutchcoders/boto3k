@@ -19,6 +19,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+from __future__ import print_function
+
 """
 Represents an SQS Queue
 """
@@ -459,7 +461,7 @@ class Queue(object):
                 m = Message(self, body)
                 self.write(m)
                 n += 1
-                print 'writing message %d' % n
+                print ('writing message %d' % n)
                 body = ''
             else:
                 body = body + l

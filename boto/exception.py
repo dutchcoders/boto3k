@@ -30,8 +30,7 @@ from boto import handler
 from boto.compat import json
 from boto.resultset import ResultSet
 
-
-class BotoClientError(StandardError):
+class BotoClientError(Exception):
     """
     General Boto Client error (error accessing AWS)
     """
@@ -46,7 +45,7 @@ class BotoClientError(StandardError):
         return 'BotoClientError: %s' % self.reason
 
 
-class SDBPersistenceError(StandardError):
+class SDBPersistenceError(Exception):
     pass
 
 
@@ -71,7 +70,7 @@ class GSPermissionsError(StoragePermissionsError):
     pass
 
 
-class BotoServerError(StandardError):
+class BotoServerError(Exception):
     def __init__(self, status, reason, body=None, *args):
         super(BotoServerError, self).__init__(status, reason, body, *args)
         self.status = status
@@ -103,7 +102,7 @@ class BotoServerError(StandardError):
                 try:
                     h = handler.XmlHandlerWrapper(self, self)
                     h.parseString(self.body)
-                except (TypeError, xml.sax.SAXParseException), pe:
+                except (TypeError, xml.sax.SAXParseException) as pe:
                     # What if it's JSON? Let's try that.
                     try:
                         parsed = json.loads(self.body)
